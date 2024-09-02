@@ -1,1 +1,1 @@
-sudo chown -R sgbhat3 /data
+sudo chown -R $USER /data

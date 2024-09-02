@@ -47,7 +47,7 @@ clients = [90, 450]
 throughput = []
 latency = []
 
-print(f"#shards, avg tput(ops/sec),avg latency(ms/op),p50 latency(ms/op),p99 latency(ms/op)")
+print(f"#shards,avg tput(ops/sec),avg latency(ms/op),p50 latency(ms/op),p99 latency(ms/op)")
 for n in clients:
     # Specify the directory path
     directory_path = "../results/0.1ms/append_bench_" + str(n)
@@ -56,4 +56,4 @@ for n in clients:
     avg_tput = get_avg_throughput(directory_path, 4096)
     mean, p50, p99 = get_latency_metrics(get_latencies(directory_path))
 
-    print(f"{int(n/90)}, {avg_tput},{mean},{p50},{p99}")
+    print(f"{int(n/90)},{avg_tput},{mean},{p50},{p99}")
