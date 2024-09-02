@@ -1,7 +1,7 @@
 #!/bin/bash
-PASSLESS_ENTRY="/users/$USER/.ssh/id_rsa"
+PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa"
 
-benchmark_dir="/proj/rasl-PG0/$USER/scalog/lazylog-benchmarking"
+benchmark_dir="/proj/rasl-PG0/LL-AE/LazyLog-Artifact/scalog-benchmarking/lazylog-benchmarking"
 LOGDIR="/data"
 
 # index into remote_nodes/ips for order nodes

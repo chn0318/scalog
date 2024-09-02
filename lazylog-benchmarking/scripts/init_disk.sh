@@ -1,1 +1,1 @@
-sudo chown -R $USER /data
+sudo chown -R luoxh /data
