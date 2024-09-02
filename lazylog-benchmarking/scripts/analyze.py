@@ -2,20 +2,6 @@ import os
 import csv
 import numpy as np 
 
-# def check_timeouts(directory):
-#     for filename in os.listdir(directory):
-#         if filename.endswith(".csv"):
-#             file_path = os.path.join(directory, filename)
-#             with open(file_path, 'r') as csvfile:
-#                 csv_reader = csv.reader(csvfile)
-#                 header = next(csv_reader)
-#                 first_line = next(csv_reader, None)
-
-#             if first_line and int(first_line[7]) != 0:
-#                 return True
-    
-#     return False
-
 def get_latencies(directory):
     all_latencies = []
 
@@ -57,22 +43,17 @@ def get_avg_throughput(directory, num_bytes_per_op):
     
     return None
 
-#clients = [2, 4, 6, 8, 16, 20, 32, 64, 128, 256, 512, 600, 700, 800, 900, 1000, 1200, 1300]
-clients = [1]
+clients = [90, 450]
 throughput = []
 latency = []
 
-print(f"#clients,avg tput(ops/sec),avg latency(ms/op),p50 latency(ms/op),p99 latency(ms/op)")
+print(f"#shards, avg tput(ops/sec),avg latency(ms/op),p50 latency(ms/op),p99 latency(ms/op)")
 for n in clients:
     # Specify the directory path
-    directory_path = "../results/0.1ms/sequential_read_bench_" + str(n)
+    directory_path = "../results/0.1ms/append_bench_" + str(n)
 
     # Calculate and print the average throughput
     avg_tput = get_avg_throughput(directory_path, 4096)
     mean, p50, p99 = get_latency_metrics(get_latencies(directory_path))
 
-    # timeout = check_timeouts(directory_path)
-    # if timeout: 
-    #     print("warning! timeouts detected in measurements")
-
-    print(f"{n},{avg_tput},{mean},{p50},{p99}")
+    print(f"{int(n/90)}, {avg_tput},{mean},{p50},{p99}")

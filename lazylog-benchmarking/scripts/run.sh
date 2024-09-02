@@ -2,15 +2,16 @@
 PASSLESS_ENTRY="/users/sgbhat3/.ssh/id_rsa"
 
 benchmark_dir="/proj/rasl-PG0/sgbhat3/scalog/lazylog-benchmarking"
+LOGDIR="/data"
 
 # index into remote_nodes/ips for order nodes
-order=("159" "038" "036")
+order=("node0" "node1" "node2")
 
 # index into remote_nodes/ips for data shards
-data_0=("124" "123")
-# data_1=("126" "039")
+data_primary=("node3" "node5" "node7" "node9" "node11")
+data_secondary=("node4" "node6" "node8" "node10" "node12")
 
-client_nodes=("136")
+client_nodes=("node13" "node14" "node15")
 
 batching_intervals=("0.1ms")
 
@@ -47,70 +48,64 @@ start_order_nodes() {
     # start order nodes
     for ((i=0; i<=2; i++))
     do
-        echo "Starting order-${i} on sgbhat3@hp${order[$i]}.utah.cloudlab.us"
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${order[$i]}.utah.cloudlab.us" "sh -c \"cd $benchmark_dir/order-$i; nohup sudo ./run_goreman.sh > /users/sgbhat3/scalog-storage/order-$i.log 2>&1 &\""
+        echo "Starting order-${i} on ${order[$i]}"
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${order[$i]} "sh -c \"cd $benchmark_dir/order-$i; nohup sudo ./run_goreman.sh > ${LOGDIR}/order-$i.log 2>&1 &\""
     done
 }
 
+
+# args: num shards
 start_data_nodes() {
     # start data nodes
-    for ((i=0; i<=1; i++))
+    for ((i=0; i<$1; i++))
     do
-        echo "Starting data-0-${i} on sgbhat3@hp${data_0[$i]}.utah.cloudlab.us"
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_0[$i]}.utah.cloudlab.us" "sh -c \"cd $benchmark_dir/data-0-$i; nohup sudo ./run_goreman.sh > /users/sgbhat3/scalog-storage/data-0-$i.log 2>&1 &\""
+        echo "Starting data-${i}-0 on ${data_primary[$i]}"
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_primary[$i]} "sh -c \"cd $benchmark_dir/data-$i-0; nohup sudo ./run_goreman.sh > ${LOGDIR}/data-$i-0.log 2>&1 &\""
     done
 
-    # for ((i=0; i<=1; i++))
-    # do
-    #     echo "Starting data-1-${i} on sgbhat3@hp${data_1[$i]}.utah.cloudlab.us"
-    #     ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_1[$i]}.utah.cloudlab.us" "sh -c \"cd $benchmark_dir/data-1-$i; nohup sudo ./run_goreman.sh > /users/sgbhat3/scalog-storage/data-1-$i.log 2>&1 &\""
-    # done
+    for ((i=0; i<$1; i++))
+    do
+        echo "Starting data-${i}-1 on ${data_secondary[$i]}"
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_secondary[$i]} "sh -c \"cd $benchmark_dir/data-$i-1; nohup sudo ./run_goreman.sh > ${LOGDIR}/data-$i-1.log 2>&1 &\""
+    done
 }
 
 start_discovery() {
     # start discovery
-    echo "Starting discovery on sgbhat3@hp${data_0[0]}.utah.cloudlab.us"
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_0[0]}.utah.cloudlab.us" "sh -c \"cd $benchmark_dir/disc; nohup sudo ./run_goreman.sh > /users/sgbhat3/scalog-storage/disc.log 2>&1 &\""
+    echo "Starting discovery on ${data_primary[0]}"
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_primary[0]} "sh -c \"cd $benchmark_dir/disc; nohup sudo ./run_goreman.sh > ${LOGDIR}/disc.log 2>&1 &\""
 }
 
 check_data_log() {
-    for ((i=0; i<=1; i++))
+    for ((i=0; i<=4; i++))
     do
-        echo "Checking data node $i..."
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_0[$i]}.utah.cloudlab.us" "grep error /users/sgbhat3/scalog-storage/data-0-$i.log"
+        echo "Checking data node data-$i-0..."
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_primary[$i]} "grep error ${LOGDIR}/data-$i-0.log"
+    done
+
+    for ((i=0; i<=4; i++))
+    do
+        echo "Checking data node data-$i-1..."
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_secondary[$i]} "grep error ${LOGDIR}/data-$i-1.log"
     done
 }
 
 start_append_clients() {
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY sgbhat3@hp$1.utah.cloudlab.us "cd $benchmark_dir/scripts; sudo ./run_append_client.sh $2 $3 $1 $4 $5 > /users/sgbhat3/scalog-storage/client_$1.log 2>&1" &
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $1 "cd $benchmark_dir/scripts; sudo ./run_append_client.sh $2 $3 $1 $4 $5 > ${LOGDIR}/client_$1.log 2>&1" &
 }
 
 start_random_read_clients() {
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY sgbhat3@hp$1.utah.cloudlab.us "cd $benchmark_dir/scripts; sudo ./run_random_read_client.sh $2 $3 $1 $4 $5 $6 > /users/sgbhat3/scalog-storage/client_$1.log 2>&1" &
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $1 "cd $benchmark_dir/scripts; sudo ./run_random_read_client.sh $2 $3 $1 $4 $5 $6 > ${LOGDIR}/client_$1.log 2>&1" &
 }
 
 start_sequential_read_clients() {
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY sgbhat3@hp$1.utah.cloudlab.us "cd $benchmark_dir/scripts; sudo ./run_sequential_read_client.sh $2 $3 $1 $4 $5 $6 > /users/sgbhat3/scalog-storage/client_$1.log 2>&1" &
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $1 "cd $benchmark_dir/scripts; sudo ./run_sequential_read_client.sh $2 $3 $1 $4 $5 $6 > ${LOGDIR}/client_$1.log 2>&1" &
 }
 
 load_phase() {
     sudo /usr/local/go/bin/go run load.go $1 $2 $3 $4 
 }
 
-monitor_disk_stats() {
-    for ((i=0; i<=1; i++))
-    do
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_0[$i]}.utah.cloudlab.us" "sh -c \"nohup sudo dstat --output /users/sgbhat3/scalog-storage/data-0-$i.csv 5 > /dev/null 2>&1  &\""
-    done
-}
-
-get_disk_stats() {
-    for ((i=0; i<=1; i++))
-    do 
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_0[$i]}.utah.cloudlab.us" "sudo pkill -f \"dstat\""
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY "sgbhat3@hp${data_0[$i]}.utah.cloudlab.us" "sudo mv /users/sgbhat3/scalog-storage/data-0-$i.csv $benchmark_dir/$1"
-    done
-}
 
 # mode 
 #   0 -> append experiment mode
@@ -121,13 +116,14 @@ get_disk_stats() {
 
 mode="$1"
 if [ "$mode" -eq 0 ]; then # append experiment mode
-    clients=("4" "8" "12" "16" "20" "24" "32" "64" "80" "100" "128" "196" "256" "300" "512")
+    clients_per_shard=90
+    num_shards=("1" "5")
     for interval in "${batching_intervals[@]}";
     do
         # modify intervals
         modify_batching_intervals $interval
 
-        for c in "${clients[@]}"; 
+        for s in "${num_shards[@]}"; 
         do
             cleanup_clients
             cleanup_servers
@@ -135,13 +131,13 @@ if [ "$mode" -eq 0 ]; then # append experiment mode
             clear_client_logs
 
             start_order_nodes
-            start_data_nodes 
+            start_data_nodes $s
             start_discovery
-            monitor_disk_stats
 
             # wait for 10 secs
             sleep 10
 
+            c=$(($s * $clients_per_shard))
             num_client_nodes=${#client_nodes[@]}
             high_num=$((($c + $num_client_nodes - 1)/$num_client_nodes))
             low_num=$(($c / $num_client_nodes))
@@ -168,9 +164,6 @@ if [ "$mode" -eq 0 ]; then # append experiment mode
 
             # check for errors in log files
             check_data_log
-            
-            # move iostat dump to results folder
-            get_disk_stats "results/$interval/append_bench_$c/"
         done
     done
 elif [ "$mode" -eq 1 ]; then # read experiment mode
@@ -243,6 +236,10 @@ elif [ "$mode" -eq 3 ]; then # kill servers and clients
 
     # check for errors in log files
     check_data_log
+elif [ "$mode" -eq 4 ]; then 
+    cleanup_clients
+    cleanup_servers
+    # collect_logs
 else # cleanup logs
     clear_server_logs
     clear_client_logs
