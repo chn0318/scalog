@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa"
+PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa_ae"
 
 # Check if the local script path is provided as a command line argument
 if [ $# -eq 0 ]; then

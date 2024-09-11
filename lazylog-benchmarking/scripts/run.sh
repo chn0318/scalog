@@ -1,5 +1,5 @@
 #!/bin/bash
-PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa"
+PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa_ae"
 
 benchmark_dir="/proj/rasl-PG0/LL-AE/LazyLog-Artifact/scalog-benchmarking/lazylog-benchmarking"
 LOGDIR="/data"
