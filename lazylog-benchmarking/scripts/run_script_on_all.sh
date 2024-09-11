@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa_ae"
+source $(dirname $0)/common.sh
 
 # Check if the local script path is provided as a command line argument
 if [ $# -eq 0 ]; then
@@ -13,7 +13,7 @@ local_script="$1"
 # Iterate over remote nodes and execute the script
 for ((i=0; i<16; i++)); do
     echo "Executing script on node$i..."
-    ssh -o StrictHostKeyChecking=no -i ${PASSLESS_ENTRY} luoxh@node$i "sudo bash -s" < "$local_script" &
+    ssh -o StrictHostKeyChecking=no -i ${PASSLESS_ENTRY} $username@node$i "sudo bash -s" < "$local_script" &
 done
 
 wait

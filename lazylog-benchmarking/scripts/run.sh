@@ -1,5 +1,6 @@
 #!/bin/bash
-PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa_ae"
+
+source $(dirname $0)/common.sh
 
 benchmark_dir="/proj/rasl-PG0/LL-AE/LazyLog-Artifact/scalog-benchmarking/lazylog-benchmarking"
 LOGDIR="/data"
@@ -49,7 +50,7 @@ start_order_nodes() {
     for ((i=0; i<=2; i++))
     do
         echo "Starting order-${i} on ${order[$i]}"
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${order[$i]} "sh -c \"cd $benchmark_dir/order-$i; nohup sudo ./run_goreman.sh > ${LOGDIR}/order-$i.log 2>&1 &\""
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@${order[$i]} "sh -c \"cd $benchmark_dir/order-$i; nohup sudo ./run_goreman.sh > ${LOGDIR}/order-$i.log 2>&1 &\""
     done
 }
 
@@ -60,46 +61,46 @@ start_data_nodes() {
     for ((i=0; i<$1; i++))
     do
         echo "Starting data-${i}-0 on ${data_primary[$i]}"
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_primary[$i]} "sh -c \"cd $benchmark_dir/data-$i-0; nohup sudo ./run_goreman.sh > ${LOGDIR}/data-$i-0.log 2>&1 &\""
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@${data_primary[$i]} "sh -c \"cd $benchmark_dir/data-$i-0; nohup sudo ./run_goreman.sh > ${LOGDIR}/data-$i-0.log 2>&1 &\""
     done
 
     for ((i=0; i<$1; i++))
     do
         echo "Starting data-${i}-1 on ${data_secondary[$i]}"
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_secondary[$i]} "sh -c \"cd $benchmark_dir/data-$i-1; nohup sudo ./run_goreman.sh > ${LOGDIR}/data-$i-1.log 2>&1 &\""
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@${data_secondary[$i]} "sh -c \"cd $benchmark_dir/data-$i-1; nohup sudo ./run_goreman.sh > ${LOGDIR}/data-$i-1.log 2>&1 &\""
     done
 }
 
 start_discovery() {
     # start discovery
     echo "Starting discovery on ${data_primary[0]}"
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_primary[0]} "sh -c \"cd $benchmark_dir/disc; nohup sudo ./run_goreman.sh > ${LOGDIR}/disc.log 2>&1 &\""
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@${data_primary[0]} "sh -c \"cd $benchmark_dir/disc; nohup sudo ./run_goreman.sh > ${LOGDIR}/disc.log 2>&1 &\""
 }
 
 check_data_log() {
     for ((i=0; i<=4; i++))
     do
         echo "Checking data node data-$i-0..."
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_primary[$i]} "grep error ${LOGDIR}/data-$i-0.log"
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@${data_primary[$i]} "grep error ${LOGDIR}/data-$i-0.log"
     done
 
     for ((i=0; i<=4; i++))
     do
         echo "Checking data node data-$i-1..."
-        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY ${data_secondary[$i]} "grep error ${LOGDIR}/data-$i-1.log"
+        ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@${data_secondary[$i]} "grep error ${LOGDIR}/data-$i-1.log"
     done
 }
 
 start_append_clients() {
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $1 "cd $benchmark_dir/scripts; sudo ./run_append_client.sh $2 $3 $1 $4 $5 > ${LOGDIR}/client_$1.log 2>&1" &
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@$1 "cd $benchmark_dir/scripts; sudo ./run_append_client.sh $2 $3 $1 $4 $5 > ${LOGDIR}/client_$1.log 2>&1" &
 }
 
 start_random_read_clients() {
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $1 "cd $benchmark_dir/scripts; sudo ./run_random_read_client.sh $2 $3 $1 $4 $5 $6 > ${LOGDIR}/client_$1.log 2>&1" &
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@$1 "cd $benchmark_dir/scripts; sudo ./run_random_read_client.sh $2 $3 $1 $4 $5 $6 > ${LOGDIR}/client_$1.log 2>&1" &
 }
 
 start_sequential_read_clients() {
-    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $1 "cd $benchmark_dir/scripts; sudo ./run_sequential_read_client.sh $2 $3 $1 $4 $5 $6 > ${LOGDIR}/client_$1.log 2>&1" &
+    ssh -o StrictHostKeyChecking=no -i $PASSLESS_ENTRY $username@$1 "cd $benchmark_dir/scripts; sudo ./run_sequential_read_client.sh $2 $3 $1 $4 $5 $6 > ${LOGDIR}/client_$1.log 2>&1" &
 }
 
 load_phase() {
