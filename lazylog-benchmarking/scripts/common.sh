@@ -1,2 +1,2 @@
-PASSLESS_ENTRY="/users/luoxh/.ssh/id_rsa_ae"
 username="luoxh"
+PASSLESS_ENTRY="/users/$username/.ssh/id_rsa_ae"

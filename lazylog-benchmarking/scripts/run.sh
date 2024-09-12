@@ -2,7 +2,7 @@
 
 source $(dirname $0)/common.sh
 
-benchmark_dir="/proj/rasl-PG0/LL-AE/LazyLog-Artifact/scalog-benchmarking/lazylog-benchmarking"
+benchmark_dir=$(realpath $(dirname $0)/..)
 LOGDIR="/data"
 
 # index into remote_nodes/ips for order nodes
