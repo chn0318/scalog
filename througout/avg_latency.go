@@ -43,6 +43,7 @@ func main() {
 	for time.Since(startTime) < duration {
 		// 写入日志内容到 scalog client 进程
 		logMessage := fmt.Sprintf("append log_entry_number_%d\n", logCount+1)
+		fmt.Println("Send Request: Append %s", logMessage)
 		localStartTime := time.Now()
 		_, err := writer.WriteString(logMessage)
 		if err != nil {
@@ -60,13 +61,13 @@ func main() {
 				fmt.Println("Error reading from stderr:", err)
 				break
 			}
-			fmt.Printf("Response: %s\n", response)
+			fmt.Printf("Receive Response: %s", response)
 			if strings.Contains(response, "Append result") {
 				localEndTime := time.Now()
 				latency := localEndTime.Sub(localStartTime)
 				totallatency += latency
 
-				fmt.Printf("Log entry %d appended successfully. Latency: %v. Response: %s", logCount+1, latency, response)
+				fmt.Printf("Log entry %d appended successfully. Latency: %v. Response: %s\n", logCount+1, latency, response)
 
 				logCount++
 				break
