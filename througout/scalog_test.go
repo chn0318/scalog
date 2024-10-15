@@ -33,14 +33,11 @@ func main() {
 	writer := bufio.NewWriter(stdin)
 	reader := bufio.NewReader(stderr)
 
-	// 设置执行时间为10秒
-	duration := 10 * time.Second
 	startTime := time.Now()
 	logCount := 0
 	totallatency := time.Duration(0)
 
-	// 不断发送 append 命令，直到达到10秒
-	for time.Since(startTime) < duration {
+	for {
 		// 写入日志内容到 scalog client 进程
 		logMessage := fmt.Sprintf("append log_entry_number_%d\n", logCount+1)
 		fmt.Println("Send Request: Append %s", logMessage)
@@ -73,7 +70,6 @@ func main() {
 				break
 			}
 		}
-		time.Sleep(1000 * time.Millisecond)
 	}
 
 	// 发送退出命令
