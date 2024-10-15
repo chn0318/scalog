@@ -21,7 +21,7 @@ func NewPartition(path string, segLen int32) (*Partition, error) {
 	p.segments = make([]*Segment, 0)
 	p.recordSegments = make([]*Segment, 0)
 	p.activeSegment, err = NewSegment(path, p.activebaseLSN)
-	p.segments = append(p.recordSegments, p.activeSegment)
+	p.recordSegments = append(p.recordSegments, p.activeSegment)
 	p.prevSSN = 0
 	if err != nil {
 		return nil, err
