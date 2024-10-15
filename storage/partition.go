@@ -11,6 +11,7 @@ type Partition struct {
 	activeSegment *Segment
 	activebaseLSN int64
 	segLen        int32
+	prevSSN       int32
 }
 
 func NewPartition(path string, segLen int32) (*Partition, error) {
@@ -18,6 +19,7 @@ func NewPartition(path string, segLen int32) (*Partition, error) {
 	p := &Partition{path: path, nextLSN: 0, activebaseLSN: 0}
 	p.segments = make([]*Segment, 0)
 	p.activeSegment, err = NewSegment(path, p.activebaseLSN)
+	p.prevSSN = 0
 	if err != nil {
 		return nil, err
 	}
@@ -28,13 +30,16 @@ func NewPartition(path string, segLen int32) (*Partition, error) {
 func (p *Partition) Write(record string) (int64, error) {
 	lsn := p.nextLSN
 	p.nextLSN++
-	ssn, err := p.activeSegment.Write(record)
-	if ssn >= p.segLen {
+	//create new segment before write
+	//fix bug: Assign GSN error, no data in ssn = 0
+	if p.prevSSN >= p.segLen-1 {
 		err := p.CreateSegment()
 		if err != nil {
 			return 0, err
 		}
 	}
+	ssn, err := p.activeSegment.Write(record)
+	p.prevSSN = ssn
 	return lsn, err
 }
 
