@@ -5,20 +5,23 @@ import (
 )
 
 type Partition struct {
-	path          string
-	nextLSN       int64
-	segments      []*Segment
-	activeSegment *Segment
-	activebaseLSN int64
-	segLen        int32
-	prevSSN       int32
+	path           string
+	nextLSN        int64
+	segments       []*Segment
+	activeSegment  *Segment
+	activebaseLSN  int64
+	segLen         int32
+	prevSSN        int32
+	recordSegments []*Segment
 }
 
 func NewPartition(path string, segLen int32) (*Partition, error) {
 	var err error
 	p := &Partition{path: path, nextLSN: 0, activebaseLSN: 0}
 	p.segments = make([]*Segment, 0)
+	p.recordSegments = make([]*Segment, 0)
 	p.activeSegment, err = NewSegment(path, p.activebaseLSN)
+	p.segments = append(p.recordSegments, p.activeSegment)
 	p.prevSSN = 0
 	if err != nil {
 		return nil, err
@@ -91,9 +94,10 @@ func (p *Partition) CreateSegment() error {
 	p.activebaseLSN += int64(p.segLen)
 	p.segments = append(p.segments, p.activeSegment)
 	p.activeSegment, err = NewSegment(p.path, p.activebaseLSN)
+	p.recordSegments = append(p.recordSegments, p.activeSegment)
 	return err
 }
 
 func (p *Partition) Assign(lsn int64, length int32, gsn int64) error {
-	return p.activeSegment.Assign(int32(lsn-p.activebaseLSN), length, gsn)
+	return p.recordSegments[lsn%int64(p.segLen)].Assign(int32(lsn-p.activebaseLSN), length, gsn)
 }
