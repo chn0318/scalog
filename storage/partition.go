@@ -99,5 +99,21 @@ func (p *Partition) CreateSegment() error {
 }
 
 func (p *Partition) Assign(lsn int64, length int32, gsn int64) error {
-	return p.recordSegments[lsn/int64(p.segLen)].Assign(int32(lsn-((lsn/int64(p.segLen))*int64(p.segLen))), length, gsn)
+	startSegmet := lsn / int64(p.segLen)
+	startSSN := lsn - startSegmet*int64(p.segLen)
+	for {
+		assignLength := min(p.segLen-int32(startSSN), length)
+		err := p.recordSegments[startSegmet].Assign(int32(startSSN), assignLength, gsn)
+		if err != nil {
+			return err
+		}
+		startSegmet++
+		startSSN = 0
+		gsn += int64(assignLength)
+		length -= assignLength
+		if length <= 0 {
+			return nil
+		}
+	}
+	// return p.recordSegments[lsn/int64(p.segLen)].Assign(int32(lsn-((lsn/int64(p.segLen))*int64(p.segLen))), length, gsn)
 }

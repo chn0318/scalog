@@ -34,10 +34,10 @@ func main() {
 	duration := 10 * time.Second
 	startTime := time.Now()
 	logCount := 0
-	totallatency := time.Duration(0)
+	totalExectime := time.Duration(0)
 
 	for time.Since(startTime) < duration {
-		// 写入日志内容到 scalog client 进程
+
 		logMessage := fmt.Sprintf("append log_entry_number_%d\n", logCount+1)
 		localStartTime := time.Now()
 		_, err := writer.WriteString(logMessage)
@@ -46,10 +46,8 @@ func main() {
 			break
 		}
 
-		// 刷新缓冲区，确保命令发送出去
 		writer.Flush()
 
-		// 读取并等待 "Append result" 输出
 		for {
 			response, err := reader.ReadString('\n')
 			if err != nil {
@@ -59,7 +57,8 @@ func main() {
 			if strings.Contains(response, "Append result") {
 				localEndTime := time.Now()
 				latency := localEndTime.Sub(localStartTime)
-				totallatency += latency
+				fmt.Printf("Log entry %d appended successfully. Latency: %v. Response: %s\n", logCount+1, latency, response)
+				totalExectime += latency
 				logCount++
 				break
 			}
@@ -79,13 +78,10 @@ func main() {
 		fmt.Println("Command finished with error:", err)
 	}
 
-	totalTime := time.Since(startTime)
-	fmt.Printf("Total execution time: %v\n", totalTime)
 	if logCount > 0 {
-		averageLatency := totallatency / time.Duration(logCount)
-		fmt.Printf("Average latency: %v ms\n", averageLatency.Milliseconds())
+		fmt.Printf("Total execution time: %d ms\n", totalExectime.Milliseconds())
+		fmt.Printf("Total logs written: %d\n", logCount)
 	} else {
 		fmt.Println("No logs were successfully written.")
 	}
-	fmt.Printf("Total logs written: %d\n", logCount)
 }
