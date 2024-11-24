@@ -61,7 +61,7 @@ func sendResults(totalRecord int, totalLatency float64, totalRecordChan chan int
 }
 
 func Perf() {
-	threads := int32(viper.GetInt("threads"))
+	threads := int(viper.GetInt("threads"))
 	var clientArray []It
 	for i := 0; i < threads; i++ {
 		it, err := NewIt()
