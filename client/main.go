@@ -27,7 +27,7 @@ func singleClientPerf(it It, index int, stopChan chan struct{}, totalRecordChan 
 		case <-stopChan:
 			// Handle stop signal by sending results and exiting the function
 			avgLatency := totalLatency / float64(totalRecord)
-			fmt.Fprintf(os.Stderr, "Client-%d: total Record: %v, avg Latency: %v s\n", index, totalRecord, avgLatency)
+			fmt.Fprintf(os.Stderr, "Client-%d: total Record: %v, avg Latency: %v ms\n", index, totalRecord, avgLatency)
 			sendResults(totalRecord, totalLatency, totalRecordChan, totalLatencyChan)
 
 			return
@@ -40,7 +40,7 @@ func singleClientPerf(it It, index int, stopChan chan struct{}, totalRecordChan 
 			start := time.Now()
 			gsn, shard, err := it.client.AppendOne(record)
 			elapse := time.Since(start)
-			totalLatency += elapse.Seconds()
+			totalLatency += float64(elapse.Milliseconds())
 			if err != nil {
 				// Log error to standard error and send results before exiting
 				fmt.Fprintf(os.Stderr, "Client-%d encountered an error: %v\n", index, err)
@@ -77,6 +77,7 @@ func Perf() {
 	totalLatencyChan := make(chan float64, threads)
 	var wg sync.WaitGroup // WaitGroup to synchronize goroutines
 
+	start := time.Now()
 	// Launch goroutines
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
@@ -94,6 +95,7 @@ func Perf() {
 
 	// Wait for all goroutines to complete
 	wg.Wait()
+	elapse := time.Since(start)
 	totalRecords := 0
 	totalLatency := 0.0
 	for i := 0; i < threads; i++ {
@@ -103,5 +105,6 @@ func Perf() {
 
 	// Print final results
 	fmt.Fprintf(os.Stderr, "Total Records Processed: %d\n", totalRecords)
-	fmt.Fprintf(os.Stderr, "Average Latency (across all threads): %.2f records/second\n", totalLatency/float64(totalRecords))
+	fmt.Fprintf(os.Stderr, "Total BandWidth: %.2f writes/s\n", float64(totalRecords)/elapse.Seconds())
+	fmt.Fprintf(os.Stderr, "Average Latency (across all threads): %.2f ms\n", totalLatency/float64(totalRecords))
 }
