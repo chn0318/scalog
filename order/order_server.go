@@ -92,13 +92,13 @@ func (s *OrderServer) monitorChannel() {
 	}
 	tick := time.NewTicker(s.batchingInterval)
 	for range tick.C {
-		forwardF, err := os.OpenFile(forwardFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		forwardF, err := os.OpenFile(forwardFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			fmt.Printf("fail to open %s error: %v\n", forwardFile, err)
 			return
 		}
 
-		proposeF, err := os.OpenFile(proposeFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		proposeF, err := os.OpenFile(proposeFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			fmt.Printf("fail to open %s error: %v\n", proposeFile, err)
 			forwardF.Close()

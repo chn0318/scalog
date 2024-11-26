@@ -201,20 +201,20 @@ func (s *DataServer) monitorChannel() {
 	}
 	tick := time.NewTicker(s.batchingInterval)
 	for range tick.C {
-		appendF, err := os.OpenFile(appendFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		appendF, err := os.OpenFile(appendFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			fmt.Printf("fail to open %s error: %v\n", appendFile, err)
 			return
 		}
 
-		replicateF, err := os.OpenFile(replicateFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		replicateF, err := os.OpenFile(replicateFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			fmt.Printf("fail to open %s error: %v\n", replicateFile, err)
 			appendF.Close()
 			return
 		}
 
-		ackF, err := os.OpenFile(ackFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		ackF, err := os.OpenFile(ackFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			fmt.Printf("fail to open %s error: %v\n", ackFile, err)
 			appendF.Close()
