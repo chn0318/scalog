@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -181,11 +183,65 @@ func (s *DataServer) Start() {
 		go s.processCommittedEntry()
 		go s.reportLocalCut()
 		go s.receiveCommittedCut()
+		go s.monitorChannel()
 		return
 	}
 	log.Errorf("Error creating data s sid=%v,rid=%v", s.shardID, s.replicaID)
 }
 
+func (s *DataServer) monitorChannel() {
+	baseDir := "./monitor"
+	appendFile := filepath.Join(baseDir, "appendC.log")
+	replicateFile := filepath.Join(baseDir, "replicateC.log")
+	ackFile := filepath.Join(baseDir, "ackC.log")
+
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		fmt.Printf("fail to create dir: %v\n", err)
+		return
+	}
+	tick := time.NewTicker(s.batchingInterval)
+	for range tick.C {
+		appendF, err := os.OpenFile(appendFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			fmt.Printf("fail to open %s error: %v\n", appendFile, err)
+			return
+		}
+
+		replicateF, err := os.OpenFile(replicateFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			fmt.Printf("fail to open %s error: %v\n", replicateFile, err)
+			appendF.Close()
+			return
+		}
+
+		ackF, err := os.OpenFile(ackFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			fmt.Printf("fail to open %s error: %v\n", ackFile, err)
+			appendF.Close()
+			replicateF.Close()
+			return
+		}
+
+		appendLen := len(s.appendC)
+		replicateLen := len(s.replicateC)
+		ackLen := len(s.ackC)
+
+		if _, err := appendF.WriteString(fmt.Sprintf("appendC: %v\n", appendLen)); err != nil {
+			fmt.Printf("fail to write %s error: %v\n", appendFile, err)
+		}
+
+		if _, err := replicateF.WriteString(fmt.Sprintf("replicateC: %v\n", replicateLen)); err != nil {
+			fmt.Printf("fail to write %s error: %v\n", replicateFile, err)
+		}
+
+		if _, err := ackF.WriteString(fmt.Sprintf("ackC: %v\n", ackLen)); err != nil {
+			fmt.Printf("fail to write %s error: %v\n", ackFile, err)
+		}
+		appendF.Close()
+		replicateF.Close()
+		ackF.Close()
+	}
+}
 func (s *DataServer) connectToPeer(peer int32) error {
 	// do not connect to the node itself
 	if peer == s.replicaID {

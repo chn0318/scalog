@@ -1,7 +1,10 @@
 package order
 
 import (
+	"fmt"
 	"math"
+	"os"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -76,6 +79,47 @@ func (s *OrderServer) Start() {
 	go s.runReplication()
 	go s.processCommit()
 	go s.processRNCommit()
+}
+
+func (s *OrderServer) monitorChannel() {
+	baseDir := "./monitor"
+	forwardFile := filepath.Join(baseDir, "forwardC.log")
+	proposeFile := filepath.Join(baseDir, "proposeC.log")
+
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		fmt.Printf("fail to create dir: %v\n", err)
+		return
+	}
+	tick := time.NewTicker(s.batchingInterval)
+	for range tick.C {
+		forwardF, err := os.OpenFile(forwardFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			fmt.Printf("fail to open %s error: %v\n", forwardFile, err)
+			return
+		}
+
+		proposeF, err := os.OpenFile(proposeFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if err != nil {
+			fmt.Printf("fail to open %s error: %v\n", proposeFile, err)
+			forwardF.Close()
+			return
+		}
+
+		forwardLen := len(s.forwardC)
+		proposeLen := len(s.proposeC)
+
+		if _, err := forwardF.WriteString(fmt.Sprintf("forwardC: %v\n", forwardLen)); err != nil {
+			fmt.Printf("fail to write %s error: %v\n", forwardFile, err)
+		}
+
+		if _, err := proposeF.WriteString(fmt.Sprintf("proposeC: %v\n", proposeLen)); err != nil {
+			fmt.Printf("fail to write %s error: %v\n", proposeFile, err)
+		}
+
+		forwardF.Close()
+		proposeF.Close()
+
+	}
 }
 
 // runReplication runs Raft to replicate proposed messages and receive
