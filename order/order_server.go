@@ -79,6 +79,7 @@ func (s *OrderServer) Start() {
 	go s.runReplication()
 	go s.processCommit()
 	go s.processRNCommit()
+	go s.monitorChannel()
 }
 
 func (s *OrderServer) monitorChannel() {
