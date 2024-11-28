@@ -22,6 +22,8 @@ func init() {
 	RootCmd.AddCommand(dataCmd)
 	dataCmd.PersistentFlags().IntP("sid", "s", 0, "Shard index")
 	dataCmd.PersistentFlags().IntP("rid", "r", 0, "Replica index in the shard")
+	dataCmd.PersistentFlags().BoolP("monitor", "m", false, "monitor the channel")
 	viper.BindPFlag("sid", dataCmd.PersistentFlags().Lookup("sid"))
 	viper.BindPFlag("rid", dataCmd.PersistentFlags().Lookup("rid"))
+	viper.BindPFlag("monitor", dataCmd.PersistentFlags().Lookup("monitor"))
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/scalog/scalog/order/orderpb"
 	"github.com/scalog/scalog/pkg/address"
 	"github.com/scalog/scalog/storage"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -183,7 +184,9 @@ func (s *DataServer) Start() {
 		go s.processCommittedEntry()
 		go s.reportLocalCut()
 		go s.receiveCommittedCut()
-		go s.monitorChannel()
+		if viper.GetBool("monitor") {
+			go s.monitorChannel()
+		}
 		return
 	}
 	log.Errorf("Error creating data s sid=%v,rid=%v", s.shardID, s.replicaID)

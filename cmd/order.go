@@ -21,5 +21,7 @@ var orderCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(orderCmd)
 	orderCmd.PersistentFlags().IntP("oid", "i", 0, "Replica index")
+	orderCmd.PersistentFlags().BoolP("monitor", "m", false, "monitor the channel")
 	viper.BindPFlag("oid", orderCmd.PersistentFlags().Lookup("oid"))
+	viper.BindPFlag("monitor", orderCmd.PersistentFlags().Lookup("monitor"))
 }

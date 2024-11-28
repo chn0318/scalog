@@ -9,10 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	log "github.com/scalog/scalog/logger"
 	"github.com/scalog/scalog/order/orderpb"
-
-	"github.com/golang/protobuf/proto"
+	"github.com/spf13/viper"
 	"go.etcd.io/etcd/etcdserver/api/snap"
 	"go.etcd.io/etcd/raft/raftpb"
 )
@@ -79,7 +79,9 @@ func (s *OrderServer) Start() {
 	go s.runReplication()
 	go s.processCommit()
 	go s.processRNCommit()
-	go s.monitorChannel()
+	if viper.GetBool("monitor") {
+		go s.monitorChannel()
+	}
 }
 
 func (s *OrderServer) monitorChannel() {
