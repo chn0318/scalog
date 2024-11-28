@@ -79,7 +79,7 @@ func (s *OrderServer) Start() {
 	go s.runReplication()
 	go s.processCommit()
 	go s.processRNCommit()
-	if viper.GetBool("monitor") {
+	if viper.GetBool("ordermonitor") {
 		go s.monitorChannel()
 	}
 }

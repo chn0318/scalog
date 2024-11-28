@@ -23,5 +23,5 @@ func init() {
 	orderCmd.PersistentFlags().IntP("oid", "i", 0, "Replica index")
 	orderCmd.PersistentFlags().BoolP("monitor", "m", false, "monitor the channel")
 	viper.BindPFlag("oid", orderCmd.PersistentFlags().Lookup("oid"))
-	viper.BindPFlag("monitor", orderCmd.PersistentFlags().Lookup("monitor"))
+	viper.BindPFlag("ordermonitor", orderCmd.PersistentFlags().Lookup("monitor"))
 }

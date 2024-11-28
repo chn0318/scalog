@@ -184,7 +184,7 @@ func (s *DataServer) Start() {
 		go s.processCommittedEntry()
 		go s.reportLocalCut()
 		go s.receiveCommittedCut()
-		if viper.GetBool("monitor") {
+		if viper.GetBool("datamonitor") {
 			go s.monitorChannel()
 		}
 		return

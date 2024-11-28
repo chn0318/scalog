@@ -25,5 +25,5 @@ func init() {
 	dataCmd.PersistentFlags().BoolP("monitor", "m", false, "monitor the channel")
 	viper.BindPFlag("sid", dataCmd.PersistentFlags().Lookup("sid"))
 	viper.BindPFlag("rid", dataCmd.PersistentFlags().Lookup("rid"))
-	viper.BindPFlag("monitor", dataCmd.PersistentFlags().Lookup("monitor"))
+	viper.BindPFlag("datamonitor", dataCmd.PersistentFlags().Lookup("monitor"))
 }
