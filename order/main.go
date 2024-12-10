@@ -3,6 +3,8 @@ package order
 import (
 	"fmt"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 	"time"
 
 	log "github.com/scalog/scalog/logger"
@@ -70,6 +72,9 @@ func StartOrder(oid int32) {
 		if err != nil {
 			log.Fatalf("Failed to server grpc: %v", err)
 		}
+	}()
+	go func() {
+		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
 	}()
 	server.Start()
 	for {

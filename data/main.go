@@ -3,6 +3,8 @@ package data
 import (
 	"fmt"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 	"time"
 
 	"github.com/scalog/scalog/data/datapb"
@@ -67,6 +69,9 @@ func StartData(sid, rid int32) {
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
+	}()
+	go func() {
+		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
 	}()
 	server.Start()
 	for {
