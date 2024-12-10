@@ -71,7 +71,7 @@ func StartData(sid, rid int32) {
 		}
 	}()
 	go func() {
-		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+		fmt.Println(http.ListenAndServe("0.0.0.0:6060", nil))
 	}()
 	server.Start()
 	for {
