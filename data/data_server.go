@@ -197,54 +197,73 @@ func (s *DataServer) monitorChannel() {
 	appendFile := filepath.Join(baseDir, "appendC.log")
 	replicateFile := filepath.Join(baseDir, "replicateC.log")
 	ackFile := filepath.Join(baseDir, "ackC.log")
+	ceFile := filepath.Join(baseDir, "ce.log")
 
 	if err := os.MkdirAll(baseDir, 0755); err != nil {
 		fmt.Printf("fail to create dir: %v\n", err)
 		return
 	}
+
+	appendF, err := os.OpenFile(appendFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Printf("fail to open %s error: %v\n", appendFile, err)
+		return
+	}
+	defer appendF.Close()
+
+	replicateF, err := os.OpenFile(replicateFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Printf("fail to open %s error: %v\n", replicateFile, err)
+		return
+	}
+	defer replicateF.Close()
+
+	ackF, err := os.OpenFile(ackFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Printf("fail to open %s error: %v\n", ackFile, err)
+		return
+	}
+
+	ceF, err := os.OpenFile(ceFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Printf("fail to open %s error: %v\n", ceFile, err)
+		return
+	}
+
+	defer ackF.Close()
+
 	tick := time.NewTicker(s.batchingInterval)
+	defer tick.Stop()
+
 	for range tick.C {
-		appendF, err := os.OpenFile(appendFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err != nil {
-			fmt.Printf("fail to open %s error: %v\n", appendFile, err)
-			return
-		}
-
-		replicateF, err := os.OpenFile(replicateFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err != nil {
-			fmt.Printf("fail to open %s error: %v\n", replicateFile, err)
-			appendF.Close()
-			return
-		}
-
-		ackF, err := os.OpenFile(ackFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err != nil {
-			fmt.Printf("fail to open %s error: %v\n", ackFile, err)
-			appendF.Close()
-			replicateF.Close()
-			return
-		}
-
 		appendLen := len(s.appendC)
 		replicateLen := len(s.replicateC)
 		ackLen := len(s.ackC)
+		ceLen := len(s.committedEntryC)
 
-		if _, err := appendF.WriteString(fmt.Sprintf("appendC: %v\n", appendLen)); err != nil {
+		if _, err := fmt.Fprintf(appendF, "appendC: %v\n", appendLen); err != nil {
 			fmt.Printf("fail to write %s error: %v\n", appendFile, err)
 		}
 
-		if _, err := replicateF.WriteString(fmt.Sprintf("replicateC: %v\n", replicateLen)); err != nil {
+		if _, err := fmt.Fprintf(replicateF, "replicateC: %v\n", replicateLen); err != nil {
 			fmt.Printf("fail to write %s error: %v\n", replicateFile, err)
 		}
 
-		if _, err := ackF.WriteString(fmt.Sprintf("ackC: %v\n", ackLen)); err != nil {
+		if _, err := fmt.Fprintf(ackF, "ackC: %v\n", ackLen); err != nil {
 			fmt.Printf("fail to write %s error: %v\n", ackFile, err)
 		}
-		appendF.Close()
-		replicateF.Close()
-		ackF.Close()
+
+		if _, err := fmt.Fprintf(ceF, "ceC: %v\n", ceLen); err != nil {
+			fmt.Printf("fail to write %s error: %v\n", ceFile, err)
+		}
+
+		appendF.Sync()
+		replicateF.Sync()
+		ackF.Sync()
+		ceF.Sync()
 	}
 }
+
 func (s *DataServer) connectToPeer(peer int32) error {
 	// do not connect to the node itself
 	if peer == s.replicaID {
@@ -374,7 +393,25 @@ func (s *DataServer) reportLocalCut() {
 	}
 }
 
+// func (s *DataServer) receiveCommittedCut() {
+// 	for {
+// 		e, err := (*s.orderClient).Recv()
+// 		if err == io.EOF {
+// 			return
+// 		}
+// 		if err != nil {
+// 			log.Fatalf("Receive from ordering layer error: %v", err)
+// 		}
+// 		s.committedEntryC <- e
+// 	}
+// }
+
 func (s *DataServer) receiveCommittedCut() {
+	var lastTime time.Time
+	lastTime = time.Now()
+
+	loopCount := 0
+
 	for {
 		e, err := (*s.orderClient).Recv()
 		if err == io.EOF {
@@ -383,7 +420,14 @@ func (s *DataServer) receiveCommittedCut() {
 		if err != nil {
 			log.Fatalf("Receive from ordering layer error: %v", err)
 		}
+
 		s.committedEntryC <- e
+
+		now := time.Now()
+		duration := now.Sub(lastTime)
+		loopCount++
+		fmt.Fprintf(os.Stderr, "Loop %d: Time since last loop: %v, ce: %v", loopCount, duration, e)
+		lastTime = now
 	}
 }
 
