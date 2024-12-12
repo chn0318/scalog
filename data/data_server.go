@@ -385,7 +385,7 @@ func (s *DataServer) reportLocalCut() {
 		lcs.Cuts[0].Cut = make([]int64, len(s.localCut))
 		copy(lcs.Cuts[0].Cut, s.localCut)
 		s.localCutMu.Unlock()
-		log.Debugf("Data report: %v", lcs)
+		log.Debugf("[reportLocalCut] Data report: %v", lcs)
 		err := (*s.orderClient).Send(lcs)
 		if err != nil {
 			log.Errorf("%v", err)
@@ -410,8 +410,6 @@ func (s *DataServer) receiveCommittedCut() {
 	var lastTime time.Time
 	lastTime = time.Now()
 
-	loopCount := 0
-
 	for {
 		e, err := (*s.orderClient).Recv()
 		if err == io.EOF {
@@ -425,14 +423,14 @@ func (s *DataServer) receiveCommittedCut() {
 
 		now := time.Now()
 		duration := now.Sub(lastTime)
-		loopCount++
-		fmt.Fprintf(os.Stderr, "Loop %d: Time since last loop: %v, ce: %v", loopCount, duration, e)
+		log.Debugf("[ReceiveCommittedCut] Time interval: %v, ce: %v, channel size: %v\n", duration, e, len(s.committedEntryC))
 		lastTime = now
 	}
 }
 
 func (s *DataServer) processCommittedEntry() {
 	for entry := range s.committedEntryC {
+		log.Debugf("[processCommittedEntry] handle CommittedEntry\n")
 		if entry.CommittedCut != nil {
 			startReplicaID := s.shardID * s.numReplica
 			startGSN := entry.CommittedCut.StartGSN
@@ -459,6 +457,7 @@ func (s *DataServer) processCommittedEntry() {
 					start = l
 					diff = int32(lsn - l)
 				}
+				log.Debugf("[processCommittedEntry] diff: %v\n", diff)
 				if diff > 0 {
 					err := s.storage.Assign(i, start, diff, startGSN)
 					if err != nil {
