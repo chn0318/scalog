@@ -5,14 +5,14 @@ import (
 	"os"
 )
 
-var logger = log.New(os.Stdout, "[sccalog] ", log.Ldate|log.Lmicroseconds)
+var logger = log.New(os.Stdout, "[scalog] ", log.Ldate|log.Lmicroseconds)
 
 func Printf(format string, v ...interface{}) {
 	logger.Printf(format, v...)
 }
 
 func Debugf(format string, v ...interface{}) {
-	//logger.Printf(format, v...)
+	logger.Printf(format, v...)
 }
 
 func Infof(format string, v ...interface{}) {

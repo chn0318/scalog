@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"io"
+	"time"
 
 	log "github.com/scalog/scalog/logger"
 	"github.com/scalog/scalog/order/orderpb"
@@ -36,6 +37,7 @@ func (s *OrderServer) respondToDataReplica(done chan struct{}, stream orderpb.Or
 	s.clientID++
 	s.subC[cid] = respC
 	s.subCMu.Unlock()
+	lastTime := time.Now()
 	for {
 		select {
 		case <-done:
@@ -46,6 +48,10 @@ func (s *OrderServer) respondToDataReplica(done chan struct{}, stream orderpb.Or
 			close(respC)
 			return
 		case resp := <-respC:
+			now := time.Now()
+			duration := now.Sub(lastTime)
+			log.Infof("[respondToDataReplica] client id:%v/%v, Time interval: %v, e: %v\n", cid, s.clientID, duration, resp)
+			lastTime = now
 			if err := stream.Send(resp); err != nil {
 				s.subCMu.Lock()
 				delete(s.subC, cid)
