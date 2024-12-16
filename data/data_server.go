@@ -374,6 +374,7 @@ func (s *DataServer) processAck() {
 
 func (s *DataServer) reportLocalCut() {
 	tick := time.NewTicker(s.batchingInterval)
+	lastTime := time.Now()
 	for range tick.C {
 		lcs := &orderpb.LocalCuts{}
 		lcs.Cuts = make([]*orderpb.LocalCut, 1)
@@ -385,7 +386,10 @@ func (s *DataServer) reportLocalCut() {
 		lcs.Cuts[0].Cut = make([]int64, len(s.localCut))
 		copy(lcs.Cuts[0].Cut, s.localCut)
 		s.localCutMu.Unlock()
-		log.Debugf("[reportLocalCut] Data report: %v", lcs)
+		now := time.Now()
+		duration := now.Sub(lastTime)
+		log.Debugf("[reportLocalCut] Time interval: %v, Data report: %v\n", duration, lcs)
+		lastTime = now
 		err := (*s.orderClient).Send(lcs)
 		if err != nil {
 			log.Errorf("%v", err)
