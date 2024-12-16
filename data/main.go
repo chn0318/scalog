@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"runtime"
 	"time"
 
 	"github.com/scalog/scalog/data/datapb"
@@ -73,6 +74,7 @@ func StartData(sid, rid int32) {
 	go func() {
 		fmt.Println(http.ListenAndServe("0.0.0.0:6060", nil))
 	}()
+	runtime.SetBlockProfileRate(1)
 	server.Start()
 	for {
 		time.Sleep(time.Second)
