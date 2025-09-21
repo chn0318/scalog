@@ -1,9 +1,8 @@
-# Use goreman to run `go get github.com/mattn/goreman`
-
-order-0: ./scalog order --config=.scalog.yaml --oid=0
-order-1: ./scalog order --config=.scalog.yaml --oid=1
-order-2: ./scalog order --config=.scalog.yaml --oid=2
-data-0-0: ./scalog data --config=.scalog.yaml --sid=0 --rid=0
-data-0-1: ./scalog data --config=.scalog.yaml --sid=0 --rid=1
-data-0-2: ./scalog data --config=.scalog.yaml --sid=0 --rid=2
-disc: ./scalog discovery --config=.scalog.yaml
+order-0: scalog order  --oid=0  > /dev/null 2>&1
+order-1: scalog order  --oid=1  > /dev/null 2>&1
+order-2: scalog order  --oid=2  > /dev/null 2>&1
+data-0-0: scalog data  --sid=0 --rid=0  > /dev/null 2>&1
+data-0-1: scalog data  --sid=0 --rid=1  > /dev/null 2>&1
+data-1-0: scalog data  --sid=1 --rid=0  > /dev/null 2>&1
+data-1-1: scalog data  --sid=1 --rid=1  > /dev/null 2>&1
+disc: scalog discovery   > /dev/null 2>&1
