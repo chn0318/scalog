@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/scalog/scalog/logger"
 	log "github.com/scalog/scalog/logger"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -12,7 +13,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile  string
+	logLevel string
+	quiet    bool
+)
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -24,6 +29,13 @@ examples and usage of using your application. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if quiet {
+			logger.SetLevel(logger.LevelNone)
+			return
+		}
+		logger.SetLevelFromString(logLevel)
+	},
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -45,6 +57,11 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.scalog.yaml)")
+
+	RootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info",
+		"log level: debug|info|warn|error|none")
+	RootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false,
+		"silence all logs (same as --log-level=none)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
