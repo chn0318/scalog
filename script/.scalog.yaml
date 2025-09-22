@@ -1,0 +1,19 @@
+order-port: 26733
+raft-port: 27238
+order-replication-factor: 3
+order-batching-interval: 1ms
+order-0-ip: "192.168.0.3"
+order-1-ip:  "192.168.0.4"
+order-2-ip:  "192.168.0.5"
+
+data-port: 23282
+data-replication-factor: 2
+data-batching-interval: 1ms
+data-0-0-ip:  "192.168.0.6"
+data-0-1-ip:  "192.168.0.7"
+data-1-0-ip:  "192.168.0.8"
+data-1-1-ip:  "192.168.0.9"
+
+disc-port: 23472
+disc-ip:  "127.0.0.1"
+
