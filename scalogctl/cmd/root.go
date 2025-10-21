@@ -33,7 +33,7 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "~/.scalog.yaml", "Path to config file (e.g. ~/.scalog.yaml")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", ".scalog.yaml", "Path to config file")
 	cur, _ := user.Current()
 	defaultUser := ""
 	if cur != nil {
