@@ -33,7 +33,7 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", ".scalog.yaml", "Path to .scalog.yaml (used locally AND on all remote nodes)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "~/.scalog.yaml", "Path to config file (e.g. ~/.scalog.yaml")
 	cur, _ := user.Current()
 	defaultUser := ""
 	if cur != nil {
@@ -45,5 +45,5 @@ func init() {
 	RootCmd.PersistentFlags().DurationVar(&timeout, "timeout", 60*time.Second, "Per-host SSH/SCP timeout")
 	RootCmd.PersistentFlags().BoolVar(&yes, "yes", false, "Do not prompt for confirmation")
 	RootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "Only print commands")
-	RootCmd.PersistentFlags().StringVar(&image, "image", "chn0318/scalog:v1.0", "Scalog docker image")
+	RootCmd.PersistentFlags().StringVar(&image, "image", "chn0318/scalog:v2.0", "Scalog docker image")
 }

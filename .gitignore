@@ -19,6 +19,10 @@ scalog
 *.gsn
 *.lsn
 
+# Go binary outputs (explicit names)
+scalog
+scalogctl
+
 # Temperary files
 tmp
 storage-*
