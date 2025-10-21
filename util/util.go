@@ -2,22 +2,32 @@ package util
 
 import (
 	"math/rand"
+	"sync"
 )
 
-const CharSet string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-const CharSetLength = 26 + 26 + 10
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-var randomStringMap = map[int]string{}
+var (
+	mu   sync.RWMutex
+	pool = make(map[int]string)
+)
 
-func GenerateRandomString(length int) string {
-	if _, ok := randomStringMap[length]; ok {
-		return randomStringMap[length]
+func GenerateRandomString(n int) string {
+	mu.RLock()
+	if s, ok := pool[n]; ok {
+		mu.RUnlock()
+		return s
 	}
-	rs := ""
-	for i := 0; i < length; i++ {
-		idx := rand.Intn(CharSetLength)
-		rs = rs + string(CharSet[idx])
+	mu.RUnlock()
+
+	b := make([]byte, n)
+	for i := 0; i < n; i++ {
+		b[i] = letters[rand.Intn(len(letters))]
 	}
-	randomStringMap[length] = rs
-	return randomStringMap[length]
+	s := string(b)
+
+	mu.Lock()
+	pool[n] = s
+	mu.Unlock()
+	return s
 }
