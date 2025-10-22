@@ -1,33 +1,108 @@
-# Scalog Benchmarking for LazyLog
+# Scalog
 
-## Requirements
-To run experiments, we need a 16 node machine (xl170/c6525-25g machine) with the data folder mounted at `/data`.
+Scalog is a distributed shared log system that consist from order layer, data layer and discovery node.
+This project provides a command-line tool `scalogctl` for managing and running a Scalog cluster.
 
-## Setup
-Install dependencies and setup go
-```
-cd lazylog-benchmarking/scripts
-./run_script_on_all.sh ./install_go.sh
-./run_script_on_all.sh ./init_disk.sh
-```
-The `run_script_on_all.sh` script runs the provided script on all nodes (`node0` - `node16`); `install_go.sh` installs go and additional dependencies, `init_disk.sh` ensures that the `/data` folder is owned by the current user. 
+## Quick Start
 
-## Obtaining data for Figure 7
-Run the following 
-```
-cd lazylog-benchmarking/scripts
-./run.sh 0
+### 1. Prerequisites
+
+- Go 1.22 or later
+- Docker installed on every node listed in `.scalog.yaml`
+- All nodes accessible via SSH
+
+### 2. Configure the Cluster
+
+Create a `.scalog.yaml` file on one node:
+
+```yaml
+order-port: 26733
+raft-port: 27238
+order-replication-factor: 3
+order-batching-interval: 1ms
+order-0-ip: "192.168.0.3"
+order-1-ip: "192.168.0.4"
+order-2-ip: "192.168.0.5"
+
+data-port: 23282
+data-replication-factor: 2
+data-batching-interval: 1ms
+data-0-0-ip:  "192.168.0.6"
+data-0-1-ip:  "192.168.0.7"
+data-1-0-ip:  "192.168.0.8"
+data-1-1-ip:  "192.168.0.9"
+
+disc-port: 23472
+disc-ip: "127.0.0.1"
 ```
 
-This starts an append-only benchmark on scalog that runs for two sets of parameters sequentially, (1) a single shard setup where we have 90 append clients appending data continuously for 3 mins, (2) a 5 shard setup with 90*5 clients appending data continuously for 3 mins. The number of clients were picked after running a latency-throughput exploration for a single shard which showed that beyond 100 clients the append latency drastically increases with increasing number of clients. The number of clients for the 5 shard experiments is chosen so that each shard roughly gets the same load as it does in the single shard experiments. After 6 minutes, this experiment terminates after creating per-client latency dumps in `lazylog-benchmarking/results/0.1ms/`. To analyze the results and print them in a readable format, run the following
+### 3. Enter the scalog project directory
 
 ```
-cd lazylog-benchmarking/scripts
-
-# Note this step assumes pip installation with numpy already exists, (if not run `sudo apt-get install pip; pip install numpy`)
-python3 analyze.py 
+cd /path/to/scalog
 ```
-**Ensure that the `lazylog-benchmarking/results` folder is cleared before any re-runs of the above experiment**
+
+All the following steps are performed in the scalog directory.
+
+------
+
+## Using `scalogctl`
+
+1. Install the CLI tool:
+
+   ```bash
+   go install -mod=vendor ./scalogctl
+   ```
+
+2. Start the cluster:
+
+   ```bash
+   scalogctl start --config {path to .scalog.yaml}
+   ```
+
+3. Stop the cluster:
+
+   ```bash
+   scalogctl stop --config {path to .scalog.yaml}
+   ```
+
+4. Run the client or performance tester:
+
+   ```bash
+    docker run -it --network=host -v /path/to/.scalog.yaml:/root/.scalog.yaml chn0318/scalog:v2.0 client
+    
+    docker run -it --network=host -v /path/to/.scalog.yaml:/root/.scalog.yaml chn0318/scalog:v2.0 perf -t {thread number}
+   ```
+
+------
+
+## Building Docker Images
+
+### Use Prebuilt Images
+
+Docker images are available at docker hub
+
+```bash
+docker pull chn0318/scalog:v2.0
+```
+
+### Build Locally
+
+```bash
+docker build -t {image_name} .
+```
+
+------
+
+## Build Scalog Locally
+
+```bash
+go build -mod=vendor .
+```
+
+This will generate a binary named `scalog`.
+
+
 
 > *Note:* Original README starts from here
 ---
