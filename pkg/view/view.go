@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/scalog/scalog/discovery/discpb"
+	"github.com/chn0318/scalog/discovery/discpb"
 )
 
 type View struct {

@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/scalog/scalog/client"
-	"github.com/scalog/scalog/data"
-	disc "github.com/scalog/scalog/discovery"
-	"github.com/scalog/scalog/order"
-	"github.com/scalog/scalog/pkg/address"
+	"github.com/chn0318/scalog/client"
+	"github.com/chn0318/scalog/data"
+	disc "github.com/chn0318/scalog/discovery"
+	"github.com/chn0318/scalog/order"
+	"github.com/chn0318/scalog/pkg/address"
 
 	"github.com/spf13/viper"
 )

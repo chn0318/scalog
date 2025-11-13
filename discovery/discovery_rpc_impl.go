@@ -3,8 +3,8 @@ package discovery
 import (
 	"io"
 
-	"github.com/scalog/scalog/discovery/discpb"
-	log "github.com/scalog/scalog/logger"
+	"github.com/chn0318/scalog/discovery/discpb"
+	log "github.com/chn0318/scalog/logger"
 )
 
 func (s *DiscoveryServer) Discover(empty *discpb.Empty, stream discpb.Discovery_DiscoverServer) error {

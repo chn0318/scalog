@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	log "github.com/scalog/scalog/logger"
-	"github.com/scalog/scalog/order/orderpb"
+	log "github.com/chn0318/scalog/logger"
+	"github.com/chn0318/scalog/order/orderpb"
 )
 
 func (s *OrderServer) Report(stream orderpb.Order_ReportServer) error {

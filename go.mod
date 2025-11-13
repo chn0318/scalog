@@ -1,4 +1,4 @@
-module github.com/scalog/scalog
+module github.com/chn0318/scalog
 
 go 1.22
 

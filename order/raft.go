@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	log "github.com/scalog/scalog/logger"
+	log "github.com/chn0318/scalog/logger"
 
 	"go.etcd.io/etcd/etcdserver/api/rafthttp"
 	"go.etcd.io/etcd/etcdserver/api/snap"

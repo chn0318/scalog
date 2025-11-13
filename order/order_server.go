@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	log "github.com/scalog/scalog/logger"
-	"github.com/scalog/scalog/order/orderpb"
+	log "github.com/chn0318/scalog/logger"
+	"github.com/chn0318/scalog/order/orderpb"
 
 	"github.com/golang/protobuf/proto"
 	"go.etcd.io/etcd/etcdserver/api/snap"

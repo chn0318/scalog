@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/scalog/scalog/discovery/discpb"
-	log "github.com/scalog/scalog/logger"
-	"github.com/scalog/scalog/order/orderpb"
-	"github.com/scalog/scalog/pkg/address"
+	"github.com/chn0318/scalog/discovery/discpb"
+	log "github.com/chn0318/scalog/logger"
+	"github.com/chn0318/scalog/order/orderpb"
+	"github.com/chn0318/scalog/pkg/address"
 
 	"google.golang.org/grpc"
 )

@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/scalog/scalog/data/datapb"
-	log "github.com/scalog/scalog/logger"
+	"github.com/chn0318/scalog/data/datapb"
+	log "github.com/chn0318/scalog/logger"
 )
 
 func (s *DataServer) Append(stream datapb.Data_AppendServer) error {

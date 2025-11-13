@@ -4,7 +4,7 @@ package cmd
 import (
 	"time"
 
-	"github.com/scalog/scalog/client"
+	"github.com/chn0318/scalog/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

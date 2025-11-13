@@ -1,7 +1,7 @@
 package client
 
 import (
-	log "github.com/scalog/scalog/logger"
+	log "github.com/chn0318/scalog/logger"
 )
 
 func StartK8s() {

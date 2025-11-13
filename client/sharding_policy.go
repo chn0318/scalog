@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/scalog/scalog/pkg/view"
+	"github.com/chn0318/scalog/pkg/view"
 )
 
 type DefaultShardingPolicy struct {

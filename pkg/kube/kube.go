@@ -3,7 +3,7 @@ package kube
 import (
 	"time"
 
-	log "github.com/scalog/scalog/logger"
+	log "github.com/chn0318/scalog/logger"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

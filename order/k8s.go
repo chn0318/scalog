@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/scalog/scalog/logger"
-	"github.com/scalog/scalog/order/orderpb"
-	"github.com/scalog/scalog/pkg/kube"
+	log "github.com/chn0318/scalog/logger"
+	"github.com/chn0318/scalog/order/orderpb"
+	"github.com/chn0318/scalog/pkg/kube"
 
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"

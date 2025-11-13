@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/scalog/scalog/pkg/address"
+	"github.com/chn0318/scalog/pkg/address"
 
 	"github.com/spf13/viper"
 )

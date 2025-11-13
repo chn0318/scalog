@@ -2,7 +2,7 @@
 package cmd
 
 import (
-	"github.com/scalog/scalog/discovery"
+	"github.com/chn0318/scalog/discovery"
 
 	"github.com/spf13/cobra"
 )

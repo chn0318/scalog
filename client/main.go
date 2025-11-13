@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/scalog/scalog/logger"
-	"github.com/scalog/scalog/util"
+	log "github.com/chn0318/scalog/logger"
+	"github.com/chn0318/scalog/util"
 	"github.com/spf13/viper"
 )
 

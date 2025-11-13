@@ -1,7 +1,7 @@
 package address
 
 import (
-	"github.com/scalog/scalog/pkg/constant"
+	"github.com/chn0318/scalog/pkg/constant"
 )
 
 type K8sDiscAddr struct {

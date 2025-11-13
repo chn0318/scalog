@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/scalog/scalog/scalogctl/pkg/config"
+	"github.com/chn0318/scalog/scalogctl/pkg/config"
 )
 
 type RemoteCmd struct {

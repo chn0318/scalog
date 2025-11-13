@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/scalog/scalog/logger"
-	log "github.com/scalog/scalog/logger"
+	"github.com/chn0318/scalog/logger"
+	log "github.com/chn0318/scalog/logger"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"

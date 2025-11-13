@@ -8,11 +8,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/scalog/scalog/data/datapb"
-	"github.com/scalog/scalog/discovery/discpb"
-	log "github.com/scalog/scalog/logger"
-	"github.com/scalog/scalog/pkg/address"
-	"github.com/scalog/scalog/pkg/view"
+	"github.com/chn0318/scalog/data/datapb"
+	"github.com/chn0318/scalog/discovery/discpb"
+	log "github.com/chn0318/scalog/logger"
+	"github.com/chn0318/scalog/pkg/address"
+	"github.com/chn0318/scalog/pkg/view"
 
 	"google.golang.org/grpc"
 )

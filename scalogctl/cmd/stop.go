@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/scalog/scalog/scalogctl/pkg/config"
-	"github.com/scalog/scalog/scalogctl/pkg/plan"
+	"github.com/chn0318/scalog/scalogctl/pkg/config"
+	"github.com/chn0318/scalog/scalogctl/pkg/plan"
 	"github.com/spf13/cobra"
 )
 
