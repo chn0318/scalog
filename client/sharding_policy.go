@@ -7,11 +7,14 @@ import (
 	"github.com/chn0318/scalog/pkg/view"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 type DefaultShardingPolicy struct {
 	shardID    int32
 	replicaID  int32
 	numReplica int32
-	seed       rand.Source
 }
 
 func NewDefaultShardingPolicy(numReplica int32) *DefaultShardingPolicy {
@@ -19,7 +22,6 @@ func NewDefaultShardingPolicy(numReplica int32) *DefaultShardingPolicy {
 		shardID:    -1,
 		replicaID:  -1,
 		numReplica: numReplica,
-		seed:       rand.NewSource(time.Now().UnixNano()),
 	}
 	return s
 }
@@ -28,17 +30,11 @@ func (p *DefaultShardingPolicy) Shard(view *view.View, record string) (int32, in
 	if view == nil {
 		return -1, -1
 	}
-	s, err := view.Get(p.shardID)
-	if err == nil && s {
-		return p.shardID, p.replicaID
-	}
 	numLiveShards := len(view.LiveShards)
 	if numLiveShards < 1 {
 		return -1, -1
 	}
-	rs := rand.New(p.seed).Intn(numLiveShards)
-	rr := int32(rand.New(p.seed).Intn(int(p.numReplica)))
-	p.shardID = view.LiveShards[rs]
-	p.replicaID = rr
-	return p.shardID, p.replicaID
+	rs := rand.Intn(numLiveShards)
+	rr := int32(rand.Intn(int(p.numReplica)))
+	return view.LiveShards[rs], rr
 }
