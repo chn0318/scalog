@@ -18,14 +18,14 @@ type Stats struct {
 	ptr C.StatsPtr
 }
 
-func NewStats(jsonName string, clientIP string) *Stats {
+func NewStats(jsonName string, clientIP string, index int64) *Stats {
 	cJsonName := C.CString(jsonName)
 	cClientIP := C.CString(clientIP)
 	defer C.free(unsafe.Pointer(cJsonName))
 	defer C.free(unsafe.Pointer(cClientIP))
 
 	return &Stats{
-		ptr: C.NewStats(0, false, cJsonName, 0, cClientIP),
+		ptr: C.NewStats(0, false, cJsonName, C.uint64_t(index), cClientIP),
 	}
 }
 

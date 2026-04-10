@@ -40,7 +40,7 @@ func singleClientPerf(it It, index int, stopChan chan struct{}, stats *Stats, du
 			log.Infof("Client-%d: total Record: %v, avg Latency: %v ms\n", index, totalRecord, avgLatency)
 			stats.ExportResults(duration)
 			// Print final results
-			fmt.Printf("Total Records Processed: %d\n", totalRecord)
+			fmt.Printf("Total Records Processed: %.2f\n", float64(totalRecord))
 			fmt.Printf("Total BandWidth: %.2f writes/s\n", float64(totalRecord)/float64(duration))
 			fmt.Printf("Average Latency (across all threads): %.2f ms\n", totalLatency/float64(totalRecord))
 			return
@@ -53,7 +53,7 @@ func singleClientPerf(it It, index int, stopChan chan struct{}, stats *Stats, du
 			_, _, err := it.client.AppendOne(record)
 			elapse := time.Since(start)
 			totalLatency += float64(elapse.Milliseconds())
-			log.Infof("Avg Lat: %.2fms \n", totalLatency)
+			//log.Infof("Avg Lat: %.2fms \n", float64(elapse.Milliseconds()))
 			if err != nil {
 				// Log error to standard error and send results before exiting
 				log.Errorf("Client-%d encountered an error: %v\n", index, err)
@@ -62,14 +62,14 @@ func singleClientPerf(it It, index int, stopChan chan struct{}, stats *Stats, du
 			}
 			totalRecord++ // Increment the total record count
 			stats.AddOp()
-			stats.AddDuration(float64(elapse.Milliseconds()))
+			stats.AddDuration(float64(elapse.Seconds()))
 		}
 	}
 }
 
 func Perf() {
 	log.Infof("At the beginning of the Perf function!\n")
-    	data, err := os.ReadFile("data.yaml")
+    	data, err := os.ReadFile("/home/mathwiz23pi/pringles/scalog/data.yaml")
     	if err != nil {
     	    log.Fatalf("error: %v", err)
     	}
@@ -94,16 +94,22 @@ func Perf() {
 	var wg sync.WaitGroup // WaitGroup to synchronize goroutines
 
 	duration := viper.GetDuration("duration")
-	log.Infof("Duration: %ds\n", duration)
+
+	log.Infof("Duration: %v\n", duration)
 	// Launch goroutines
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
-		stats := NewStats(config.JsonName, config.ClientIP)
+		stats := NewStats(config.JsonName, config.ClientIP, int64(i))
+		if stats == nil {
+			panic("CRITICAL ERROR: C++ returned a NULL pointer! The C++ constructor failed.")
+		} else {
+			log.Infof("Stats is NOT NIL!")
+		}
 		go func(index int) {
 			defer wg.Done()
-			singleClientPerf(clientArray[index], index, stopChan, stats, int64(duration))
+			defer stats.Close()
+			singleClientPerf(clientArray[index], index, stopChan, stats, int64(duration.Seconds()))
 		}(i)
-		stats.Close()
 	}
 
 	// Let the test run for the specified duration
@@ -111,6 +117,7 @@ func Perf() {
 
 	// Signal all goroutines to stop
 	close(stopChan)
+
 
 	// Wait for all goroutines to complete
 	wg.Wait()

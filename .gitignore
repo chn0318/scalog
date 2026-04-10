@@ -33,3 +33,4 @@ coverage.txt
 .idea
 
 results/
+*.json
