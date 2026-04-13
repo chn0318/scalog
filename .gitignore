@@ -34,3 +34,4 @@ coverage.txt
 
 results/
 *.json
+data.yaml
